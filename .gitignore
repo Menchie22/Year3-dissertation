@@ -1,0 +1,17 @@
+# Python environments
+venv/
+hfenv/
+__pycache__/
+*.pyc
+
+# HuggingFace / transformers cache
+.cache/
+.huggingface/
+transformers/
+
+# Node / Laravel
+node_modules/
+vendor/
+
+# Env files
+.env
