@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emotion-Based Chatbot</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -62,33 +64,46 @@ sendBtn.onclick = async () => {
 
     addMessage('Thinking...', false);
 
-    const resp = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        body: JSON.stringify({ message: text })
-    });
-
-    messages.lastChild.remove();
-
-    if (!resp.ok) {
-        addMessage('Sorry, something went wrong.', false);
-        return;
-    }
-
-    const data = await resp.json();
-
-    addMessage(
-        `${data.reply}<br><strong>Emotion:</strong> ${data.emotion}`,
-        false
-    );
-
-    if (data.recommendations) {
-        data.recommendations.forEach(r => {
-            addMessage(`🎯 ${r.title} (${r.type})<br><small>${r.reason}</small>`, false);
+    try {
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            },
+            body: JSON.stringify({ message: text })
         });
+
+        const raw = await resp.text();
+
+        messages.lastChild.remove();
+
+        if (!resp.ok) {
+            addMessage(`Error ${resp.status}: ${raw}`, false);
+            return;
+        }
+
+        const data = JSON.parse(raw);
+
+        addMessage(
+            `${data.reply}<br><strong>Emotion:</strong> ${data.emotion}`,
+            false
+        );
+
+        if (data.recommendations && Array.isArray(data.recommendations)) {
+            data.recommendations.forEach(r => {
+                addMessage(
+                    `🎯 ${r.title} (${r.type})<br><small>${r.reason}</small>`,
+                    false
+                );
+            });
+        }
+    } catch (err) {
+        if (messages.lastChild) {
+            messages.lastChild.remove();
+        }
+        addMessage(`Fetch failed: ${err.message}`, false);
     }
 };
 
