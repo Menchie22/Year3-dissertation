@@ -31,7 +31,7 @@
         <div id="messages" class="flex-1 overflow-y-auto px-4 py-6 md:px-10 space-y-6">
             <div class="flex justify-start">
                 <div class="flex gap-3 max-w-3xl">
-                    <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
                         AI
                     </div>
                     <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm text-gray-800">
@@ -45,16 +45,24 @@
         </div>
 
         <div class="border-t bg-white px-4 py-4 md:px-8">
+            <div class="max-w-4xl mx-auto flex justify-between items-center mb-2 px-1">
+                <div class="text-sm text-gray-500">Model:</div>
+                <select id="modelSelect" class="border rounded px-2 py-1 text-sm">
+                    <option value="transformer">Transformer</option>
+                    <option value="vader">VADER</option>
+                </select>
+            </div>
+
             <div class="max-w-4xl mx-auto flex gap-3 items-end">
                 <input
                     id="messageInput"
                     type="text"
                     placeholder="Message Emotion Chatbot..."
-                    class="flex-1 border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                    class="flex-1 border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white"
                 >
                 <button
                     id="sendBtn"
-                    class="bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-2xl font-medium transition"
+                    class="bg-black hover:bg-gray-800 text-white px-5 py-3 rounded-2xl font-medium transition"
                 >
                     Send
                 </button>
@@ -67,6 +75,7 @@
 const messages = document.getElementById('messages');
 const input = document.getElementById('messageInput');
 const sendBtn = document.getElementById('sendBtn');
+const modelSelect = document.getElementById('modelSelect');
 
 function scrollToBottom() {
     messages.scrollTop = messages.scrollHeight;
@@ -77,11 +86,11 @@ function addUserMessage(text) {
     wrapper.className = 'flex justify-end';
 
     wrapper.innerHTML = `
-        <div class="flex gap-3 max-w-3xl flex-row-reverse">
-            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+        <div style="display:flex; gap:12px; max-width:48rem; flex-direction:row-reverse; align-items:flex-start;">
+            <div style="width:32px; height:32px; border-radius:9999px; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">
                 You
             </div>
-            <div style="background:#10a37f;color:white;" class="rounded-2xl rounded-tr-md px-4 py-3 shadow-sm max-w-xl break-words">
+            <div style="background:#000; color:#fff; padding:12px 16px; border-radius:16px 16px 4px 16px; box-shadow:0 1px 2px rgba(0,0,0,.08); max-width:640px; word-break:break-word;">
                 ${text}
             </div>
         </div>
@@ -97,7 +106,7 @@ function addBotMessage(html) {
 
     wrapper.innerHTML = `
         <div class="flex gap-3 max-w-3xl">
-            <div class="w-8 h-8 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-bold shrink-0">
+            <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
                 AI
             </div>
             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm text-gray-800">
@@ -114,7 +123,7 @@ function addRecommendationCard(r) {
     addBotMessage(`
         <div class="space-y-1">
             <div class="font-semibold text-gray-900">🎯 ${r.title}</div>
-            <div class="text-xs uppercase tracking-wide text-green-700 font-semibold">${r.type}</div>
+            <div class="text-xs uppercase tracking-wide text-black font-semibold">${r.type}</div>
             <div class="text-sm text-gray-600">${r.reason}</div>
         </div>
     `);
@@ -127,15 +136,14 @@ sendBtn.onclick = async () => {
     addUserMessage(text);
     input.value = '';
 
-    // Thinking message
     const thinkingWrapper = document.createElement('div');
     thinkingWrapper.className = 'flex justify-start';
     thinkingWrapper.innerHTML = `
         <div class="flex gap-3 max-w-3xl">
-            <div class="w-8 h-8 rounded-full bg-green-600 text-black flex items-center justify-center text-xs font-bold shrink-0">
+            <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold shrink-0">
                 AI
             </div>
-            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm text-black italic">
+            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm text-gray-500 italic">
                 Thinking...
             </div>
         </div>
@@ -151,12 +159,13 @@ sendBtn.onclick = async () => {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
             },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({
+                message: text,
+                method: modelSelect.value
+            })
         });
 
         const raw = await resp.text();
-
-        // remove ONLY thinking message
         thinkingWrapper.remove();
 
         if (!resp.ok) {
@@ -172,6 +181,9 @@ sendBtn.onclick = async () => {
                 <div class="text-sm text-gray-600">
                     <span class="font-semibold">Emotion:</span> ${data.emotion}
                 </div>
+                <div class="text-sm text-gray-600">
+                    <span class="font-semibold">Model:</span> ${data.method}
+                </div>
                 ${data.confidence ? `
                     <div class="text-sm text-gray-600">
                         <span class="font-semibold">Confidence:</span> ${Number(data.confidence).toFixed(2)}
@@ -183,7 +195,6 @@ sendBtn.onclick = async () => {
         if (data.recommendations && Array.isArray(data.recommendations)) {
             data.recommendations.forEach(r => addRecommendationCard(r));
         }
-
     } catch (err) {
         thinkingWrapper.remove();
         addBotMessage(`<span class="text-red-600 font-medium">Fetch failed:</span> ${err.message}`);

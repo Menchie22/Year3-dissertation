@@ -16,11 +16,14 @@ class ChatbotController extends Controller
     {
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:1000'],
+            'method' => ['nullable', 'in:transformer,vader'],
         ]);
+
+        $method = $validated['method'] ?? 'transformer';
 
         $result = $fastApi->analyze(
             $validated['message'],
-            'transformer',
+            $method,
             2
         );
 
@@ -42,7 +45,7 @@ class ChatbotController extends Controller
             'reply' => $reply,
             'emotion' => $analysis['emotion'] ?? null,
             'confidence' => $analysis['confidence'] ?? null,
-            'method' => $analysis['method'] ?? null,
+            'method' => $analysis['method'] ?? $method,
             'recommendations' => $recommendations,
         ]);
     }
