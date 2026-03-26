@@ -8,9 +8,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot');
-Route::post('/chatbot/analyze', [ChatbotController::class, 'analyze'])->name('chatbot.analyze');
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -25,4 +22,3 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
-
