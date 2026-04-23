@@ -29,3 +29,28 @@ User Input → Laravel → FastAPI → Emotion Detection → Recommendation Engi
 ```bash
 pip install -r requirements.txt
 uvicorn main:app --reload
+ ```
+
+### Laravel
+```bash
+composer install
+php artisan serve
+```
+
+## Project Structure
+
+- chatbot-ui/ → Laravel frontend and backend (user interface + API handling)
+- emotion-based-entertainment-recommender/ → FastAPI backend (emotion detection + recommendation logic)
+
+## Key Files
+
+### FastAPI
+- detector.py → Selects emotion detection model
+- recommend.py → Generates recommendations
+- rules.py → Emotion-to-mood mapping
+
+### Laravel
+- ChatbotController.php → Handles API requests
+- FastApiService.php → Communicates with FastAPI
+- chatbot.blade.php → User interface
+
