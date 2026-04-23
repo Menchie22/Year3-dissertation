@@ -42,7 +42,7 @@ php artisan serve
 This project consists of two components:
 
 ### 1. Laravel Application (Frontend + API Gateway)
-Located in this repository.
+Located in this repository: https://github.com/Menchie22/Year3-dissertation
 
 ### 2. FastAPI Backend (Emotion Detection Service)
 Available at:
