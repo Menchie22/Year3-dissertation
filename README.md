@@ -39,8 +39,14 @@ php artisan serve
 
 ## Project Structure
 
-- chatbot-ui/ → Laravel frontend and backend (user interface + API handling)
-- emotion-based-entertainment-recommender/ → FastAPI backend (emotion detection + recommendation logic)
+This project consists of two components:
+
+### 1. Laravel Application (Frontend + API Gateway)
+Located in this repository.
+
+### 2. FastAPI Backend (Emotion Detection Service)
+Available at:
+https://github.com/Menchie22/emotion-based-entertainment-recommender
 
 ## Key Files
 
